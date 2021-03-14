@@ -1,12 +1,12 @@
-from PyQt5.QtCore import QDir, Qt, QUrl
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
-        QPushButton, QSizePolicy, QSlider, QStyle, QVBoxLayout, QWidget)
-from PyQt5.QtWidgets import QMainWindow,QWidget, QPushButton, QAction
-from PyQt5.QtGui import QIcon
-import sys
+
 from FrameGrabber import *
+import sys
 
 class VideoWindow(QMainWindow):
 
@@ -24,6 +24,10 @@ class VideoWindow(QMainWindow):
         self.positionSlider = QSlider(Qt.Horizontal)
         self.errorLabel = QLabel()
         self.frameCounter = 0
+        
+        #list và table, có 2 loại dùng cái nào tuỳ em 
+        self.listWidget = QListWidget()
+        self.tableWidget = QTableWidget(0,3) #0 là số hàng 3 là số cột  
         self.initUI()       
 
 
@@ -72,10 +76,31 @@ class VideoWindow(QMainWindow):
         controlLayout.addWidget(self.positionSlider)
 
         # Hộp chứa video và hộp điều khiển
-        layout = QVBoxLayout()
-        layout.addWidget(self.videoWidget)
-        layout.addLayout(controlLayout)
-        layout.addWidget(self.errorLabel)
+        
+        vboxlayout = QVBoxLayout()
+        vboxlayout.addWidget(self.videoWidget)
+        vboxlayout.addLayout(controlLayout)
+        vboxlayout.addWidget(self.errorLabel)
+        
+        #add vào table với list như này nhé
+        x = 1
+        y = 2
+        t = 45
+        self.listWidget.addItem('X      Y       T ')
+        self.listWidget.addItem(str(x) + '      ' + str(y) + '      ' + str(t))
+        self.tableWidget.insertRow(0)
+        self.tableWidget.insertRow(1)
+        self.tableWidget.setItem(0, 0, QTableWidgetItem("X"))
+        self.tableWidget.setItem(0, 1, QTableWidgetItem("Y"))
+        self.tableWidget.setItem(0,2, QTableWidgetItem("T"))
+        self.tableWidget.setItem(1, 0, QTableWidgetItem(str(x)))
+        self.tableWidget.setItem(1, 1, QTableWidgetItem(str(y)))
+        self.tableWidget.setItem(1,2, QTableWidgetItem(str(t)))
+
+        layout = QGridLayout(self)
+        layout.addLayout(vboxlayout, 0, 0)
+        layout.addWidget(self.listWidget, 0, 1)
+        layout.addWidget(self.tableWidget, 0, 2)
         wid = QWidget(self)
         self.setCentralWidget(wid)
         wid.setLayout(layout)
@@ -85,6 +110,8 @@ class VideoWindow(QMainWindow):
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
         self.mediaPlayer.error.connect(self.handleError)
+
+
         self.show()
     def openFile(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "Open Movie",
